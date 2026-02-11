@@ -127,7 +127,7 @@ function createImage(src) {
   likeContainer.classList.add("btnLike-container");
   likeContainer.innerHTML = `
     <button class="btnLike">
-      <img src="./public/assets/LikeIcon_Default.svg" alt="Like Icon" class="likeIcon">
+      <img src="/assets/LikeIcon_Default.svg" alt="Like Icon" class="likeIcon">
     </button>
     <p class="likesTitle">Likes <span class="countLikes">0</span></p>
   `;
@@ -144,15 +144,15 @@ function createImage(src) {
     count += liked ? 1 : -1;
     likeCount.textContent = count;
     likeIcon.src = liked
-      ? "./public/assets/LikeIcon_Pressed.svg"
-      : "./public/assets/LikeIcon_Default.svg";
+      ? "/assets/LikeIcon_Pressed.svg"
+      : "/assets/LikeIcon_Default.svg";
   });
 
   // Comment Button
   const commentButton = document.createElement("button");
   commentButton.id = "openCommentsModal";
   commentButton.innerHTML = `
-    <img src="./public/assets/CommentIcon_Default-Clicked.svg" alt="Comment Icon" class="commentIcon">
+    <img src="/assets/CommentIcon_Default-Clicked.svg" alt="Comment Icon" class="commentIcon">
   `;
 
   iconsWrapper.appendChild(likeContainer);
@@ -205,14 +205,48 @@ window.addEventListener("resize", adjustImageSizes);
 // Fetch images from API
 async function fetchImages(page) {
   try {
+    // Usar o proxy do Vite em desenvolvimento
     const resp = await fetch(
-      `https://image-feed-api.vercel.app/api/images?page=${page}`
+      `/api/images?page=${page}`
     );
+    
+    if (!resp.ok) {
+      throw new Error(`API error: ${resp.status} ${resp.statusText}`);
+    }
+    
     const json = await resp.json();
+    console.log("API Response:", json);
 
-    json.data.forEach((img) => createImage(img.image_url));
+    // Handle both possible response structures
+    const images = json.data || json.images || json;
+    
+    if (Array.isArray(images)) {
+      images.forEach((img) => {
+        const imageUrl = img.image_url || img.url || img;
+        if (imageUrl) {
+          createImage(imageUrl);
+        }
+      });
+    } else {
+      console.warn("Unexpected API response structure:", json);
+    }
   } catch (error) {
     console.error("Error fetching images:", error);
+    // Fallback com dados mock caso a API falhe
+    console.log("Usando imagens de fallback...");
+    const mockImages = [
+      "https://picsum.photos/440?random=1",
+      "https://picsum.photos/440?random=2",
+      "https://picsum.photos/440?random=3",
+      "https://picsum.photos/440?random=4",
+      "https://picsum.photos/440?random=5",
+      "https://picsum.photos/440?random=6",
+      "https://picsum.photos/440?random=7",
+      "https://picsum.photos/440?random=8",
+      "https://picsum.photos/440?random=9",
+      "https://picsum.photos/440?random=10",
+    ];
+    mockImages.forEach(url => createImage(url));
   }
 }
 
