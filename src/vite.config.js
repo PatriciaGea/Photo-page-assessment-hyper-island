@@ -6,7 +6,7 @@ export default defineConfig({
       '/api': {
         target: 'https://image-feed-api.vercel.app',
         changeOrigin: true,
-        rewrite: (path) => path,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }
