@@ -205,10 +205,8 @@ window.addEventListener("resize", adjustImageSizes);
 // Fetch images from API
 async function fetchImages(page) {
   try {
-    // Usar o proxy do Vite em desenvolvimento
-    const resp = await fetch(
-      `/api/images?page=${page}`
-    );
+    // Usar Picsum diretamente
+    const resp = await fetch(`https://picsum.photos/v2/list?page=${page}&limit=20`);
     
     if (!resp.ok) {
       throw new Error(`API error: ${resp.status} ${resp.statusText}`);
@@ -217,8 +215,8 @@ async function fetchImages(page) {
     const json = await resp.json();
     console.log("API Response:", json);
 
-    // Handle both possible response structures
-    const images = json.data || json.images || json;
+    // Normaliza para que caia no mesmo fluxo do código antigo
+    const images = json.data || json.images || json.map(img => ({ image_url: img.download_url }));
     
     if (Array.isArray(images)) {
       images.forEach((img) => {
@@ -227,29 +225,11 @@ async function fetchImages(page) {
           createImage(imageUrl);
         }
       });
-    } else {
-      console.warn("Unexpected API response structure:", json);
     }
-  } catch (error) {
-    console.error("Error fetching images:", error);
-    // Fallback com dados mock caso a API falhe
-    console.log("Usando imagens de fallback...");
-    const mockImages = [
-      "https://picsum.photos/440?random=1",
-      "https://picsum.photos/440?random=2",
-      "https://picsum.photos/440?random=3",
-      "https://picsum.photos/440?random=4",
-      "https://picsum.photos/440?random=5",
-      "https://picsum.photos/440?random=6",
-      "https://picsum.photos/440?random=7",
-      "https://picsum.photos/440?random=8",
-      "https://picsum.photos/440?random=9",
-      "https://picsum.photos/440?random=10",
-    ];
-    mockImages.forEach(url => createImage(url));
+  } catch (err) {
+    console.error(err);
   }
 }
-
 // Load initial images
 fetchImages(currentPage);
 

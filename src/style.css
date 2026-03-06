@@ -415,7 +415,7 @@ h2 {
 .popup-content {
   position: relative;
   background: var(--bg-color);
-  padding: 30px;
+  padding: 20px;
   border-radius: 8px;
 
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
@@ -426,8 +426,8 @@ h2 {
   transform: translateY(0);
 }
 .popup-content img {
-  max-width: 90vw;
-  max-height: 80vh;
+  max-width: 80vw;
+  max-height: 70vh;
   border-radius: 8px;
 }
 #close-popup {
